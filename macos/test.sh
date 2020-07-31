@@ -14,16 +14,16 @@ if [ ! -d certs ]; then
 fi
 
 # Add self-signed cert trusted root
-if sudo security find-certificate -c host.docker.internal "/Library/Keychains/System.keychain" >/dev/null; then
-  sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" certs/certificate.crt
-  read -p "cert added. Restart docker and press any key to continue"
-fi
+sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" certs/certificate.crt
+echo "cert added but docker needs to be restarted for system certs to be accessible do the daemon"
+read -p "Restart docker, wait for restart, and press any key to continue"
+
 cleanup "sudo security remove-trusted-cert -d certs/certificate.crt"
 
 # Start a registry (and cleanup after exit)
-cleanup "docker rm -f reg >/dev/null"
 docker run --name reg -d -p 5000:5000 -v $PWD/certs:/certs -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/certificate.crt -e REGISTRY_HTTP_TLS_KEY=/certs/certificate.key registry:2
+cleanup "docker rm -f reg >/dev/null"
 
-docker tag my-image host.docker.internal:5000/my-image
+docker tag registry:2 host.docker.internal:5000/my-image
 
 docker run -v '/var/run/docker.sock:/var/run/docker.sock' docker push host.docker.internal:5000/my-image
