@@ -13,10 +13,17 @@ if [ ! -d certs ]; then
   openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=ZZ/ST=ZZ/L=ZZ/O=ZZ/CN=host.docker.internal" -keyout certs/certificate.key -out certs/certificate.crt
 fi
 
+# Check for existing self-signed certs of unknown origin
+if security find-certificate -Z -c host.docker.internal "/Library/Keychains/System.keychain" 2> /dev/null; then
+  echo "An existing self-signed cert for host.docker.internal was found. Re-run after removing manually:"
+  echo '$ security delete-certificate -c host.docker.internal "/Library/Keychains/System.keychain"'
+  exit 1
+fi
+
 # Add self-signed cert trusted root
 echo "Adding self-signed cert to MacOS trusted CA root store. This requires sudo. Cert will be removed from root store at the end of this script"
 sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" certs/certificate.crt
-cleanup "sudo security remove-trusted-cert -d certs/certificate.crt"
+cleanup 'sudo security delete-certificate -c host.docker.internal "/Library/Keychains/System.keychain"'
 
 echo "cert added but docker needs to be restarted for system certs to be accessible do the daemon"
 read -p "Restart docker, wait for restart, and press any key to continue"

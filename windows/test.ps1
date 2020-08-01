@@ -1,8 +1,16 @@
 $ErrorActionPreference="Stop"
+# Note: this script is only meaningful if there is no insecure-registries entry for this host
 
 if (!(Test-Path certs)) {
     mkdir certs
     openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=ZZ/ST=ZZ/L=ZZ/O=ZZ/CN=host.docker.internal" -keyout certs\certificate.key -out certs\certificate.crt
+}
+
+# Check for existing self-signed certs of unknown origin
+if (Get-ChildItem Cert:\LocalMachine\Root -Recurse | Where-Object {$_.Subject -like "*host.docker.internal*"}) {
+    echo "An existing self-signed cert for host.docker.internal was found. Re-run after removing manually"
+    echo 'PS > Get-ChildItem Cert:\LocalMachine\Root -Recurse | Where-Object {$_.Subject -like "*host.docker.internal*"} | Remove-Item'
+    exit 1
 }
 
 try {
