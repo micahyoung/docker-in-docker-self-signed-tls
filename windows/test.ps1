@@ -20,7 +20,7 @@ try {
     # Remove cert
     Get-ChildItem Cert:\LocalMachine\Root -Recurse | Where-Object {$_.Subject -like "*host.docker.internal*"} | Remove-Item
 
-    # Remove cert
+    # Remove reg container
     docker rm -f reg
 }
 
