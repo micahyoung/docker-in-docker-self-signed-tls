@@ -1,1 +1,1 @@
-# Examples of Docker-in-docker using self-signed TLS registry
+# Examples of Docker-in-docker using self-signed TLS in a containerized registry
