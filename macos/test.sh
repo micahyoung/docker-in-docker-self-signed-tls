@@ -16,11 +16,10 @@ fi
 # Add self-signed cert trusted root
 echo "Adding self-signed cert to MacOS trusted CA root store. This requires sudo. Cert will be removed from root store at the end of this script"
 sudo security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" certs/certificate.crt
+cleanup "sudo security remove-trusted-cert -d certs/certificate.crt"
 
 echo "cert added but docker needs to be restarted for system certs to be accessible do the daemon"
 read -p "Restart docker, wait for restart, and press any key to continue"
-
-cleanup "sudo security remove-trusted-cert -d certs/certificate.crt"
 
 # Start a registry (and cleanup after exit)
 docker run --name reg -d -p 5000:5000 -v $PWD/certs:/certs -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/certificate.crt -e REGISTRY_HTTP_TLS_KEY=/certs/certificate.key registry:2
