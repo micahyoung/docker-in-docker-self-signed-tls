@@ -1,8 +1,11 @@
 # Examples of Docker-in-docker using self-signed TLS in a containerized registry
 
 ## Requirements:
-* MacOS: Docker Desktop
-* Windows: Docker Desktop with Windows Containers enabled
+* MacOS: 
+  * Docker Desktop
+* Windows:
+  * Docker Desktop with Windows Containers enabled
+  * OpenSSL CLI (`choco install openssl`)
 
 ## Steps:
 
