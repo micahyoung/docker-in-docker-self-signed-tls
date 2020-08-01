@@ -18,3 +18,6 @@ cd macos
 cd windows
 .\test.ps1
 ```
+
+## Note:
+Scripts clean up everything after they run so if you want to preserve the state, comment out the `cleanup` commands
