@@ -25,6 +25,8 @@ read -p "Restart docker, wait for restart, and press any key to continue"
 docker run --name reg -d -p 5000:5000 -v $PWD/certs:/certs -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/certificate.crt -e REGISTRY_HTTP_TLS_KEY=/certs/certificate.key registry:2
 cleanup "docker rm -f reg >/dev/null"
 
+# Tag the image on the daemon with the address of the containerized registry
 docker tag registry:2 host.docker.internal:5000/my-image
 
+# Use a container with just the socket (no certs) to push the the TLS-enabled registry
 docker run -v '/var/run/docker.sock:/var/run/docker.sock' docker push host.docker.internal:5000/my-image
